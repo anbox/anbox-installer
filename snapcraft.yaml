@@ -1,0 +1,19 @@
+name: anbox-installer
+version: 1
+summary: Installer for the Android in a Box runtime environment
+description: |
+  A classic snap which will install the Android in a Box runtime
+  environment on an Ubuntu system.
+confinement: classic
+grade: stable
+
+apps:
+  anbox-installer:
+    command: installer.sh
+
+parts:
+  common:
+    plugin: dump
+    source: .
+    prime:
+      - installer.sh
