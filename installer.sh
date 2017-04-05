@@ -28,7 +28,7 @@ echo
 echo " 1. Install Anbox"
 echo " 2. Uninstall Anbox"
 echo
-echo "Please enter your choice: "
+echo "Please enter your choice [1-2]: "
 read action
 echo
 echo
