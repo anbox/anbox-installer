@@ -48,29 +48,22 @@ if [ "$action" == "2" ]; then
 	fi
 	echo
 	set -x
-	if [ -x $HOME/.config/upstart/anbox.conf ]; then
+	if [ -e $HOME/.config/upstart/anbox.conf ]; then
 		initctl stop anbox
-		rm $HOME/.config/upstart/anbox.conf
+		rm -f $HOME/.config/upstart/anbox.conf
 	fi
 	sudo systemctl stop snap.anbox.container-manager
 	sudo snap remove anbox
-	sudo rmmod ashmem_linux || true
-	sudo rmmod binder_linux || true
-	if [ -e /etc/udev/rules.d/99-anbox.rules ]; then
-		sudo rm /etc/udev/rules.d/99-anbox.rules
-	fi
-	if [ -e /etc/udev/rules.d/anbox.conf ]; then
-		sudo rm /etc/modules-load.d/anbox.conf
-	fi
+	sudo rm -f /etc/udev/rules.d/99-anbox.rules
+	sudo rm -f /etc/modules-load.d/anbox.conf
 	sudo rmmod ashmem_linux binder_linux || true
 	sudo apt purge -y anbox-modules-dkms
 	if [ -e /etc/apt/sources.list.d/morphis-ubuntu-anbox-support-xenial.list ]; then
 		sudo apt install -y ppa-purge
 		sudo ppa-purge ppa:morphis/anbox-support
 	fi
-	if [ -e $HOME/.config/upstart/anbox.conf ]; then
-		rm $HOME/.config/upstart/anbox.conf
-	fi
+	rm -f $HOME/.config/upstart/anbox.conf
+	sudo rm -f /etc/X11/Xsession.d/68anbox
 	set +xe
 	echo
 	echo "Successfully removed anbox!"
@@ -98,6 +91,9 @@ echo " * Configure binder and ashmem kernel modules to be loaded"
 echo "   automatically on boot."
 echo " * Add an upstart job for the current user $USER which will"
 echo "   start the anbox runtime on login."
+echo " * Add a X11 session configuration file to allow the system"
+echo "   application launcher (Unity7, Gnome Shell, ..) to find"
+echo "   available Android applications."
 echo
 echo "Please type 'I AGREE' followed by pressing ENTER to continue"
 echo "or type anything else to abort:"
@@ -120,7 +116,7 @@ KERNEL=="ashmem", NAME="%k", MODE="0666"
 EOF
 fi
 
-sudo apt install -y software-properties-common
+sudo apt install -y software-properties-common linux-headers-generic
 sudo add-apt-repository -y -u 'ppa:morphis/anbox-support'
 sudo apt install -y anbox-modules-dkms
 
@@ -141,10 +137,27 @@ else
 	 sudo snap refresh anbox
 fi
 
+if [ ! -e /etc/X11/Xsession.d/68anbox ]; then
+	echo "Installing application launcher detection for X11 .."
+	sudo tee /etc/X11/Xsession.d/68anbox &>/dev/null <<"EOF"
+# This file is sourced by Xsession(5), not executed.
+# Add additional anbox desktop path
+if [ -z "$XDG_DATA_DIRS" ]; then
+    # 60x11-common_xdg_path does not always set XDG_DATA_DIRS
+    # so we ensure we have sensible defaults here (LP: #1575014)
+    # as a workaround
+    XDG_DATA_DIRS=/usr/local/share/:/usr/share/:$HOME/snap/anbox/common/app-data
+else
+    XDG_DATA_DIRS="$XDG_DATA_DIRS":$HOME/snap/anbox/common/app-data
+fi
+export XDG_DATA_DIRS
+EOF
+fi
+
 if [ ! -e $HOME/.config/upstart/anbox.conf ]; then
 	echo "Installing upstart session job .."
 	cat << EOF > $HOME/.config/upstart/anbox.conf
-start on unity7
+start on started unity7
 respawn
 respawn limit 10 5
 exec /snap/bin/anbox session-manager
@@ -156,3 +169,7 @@ set +x
 
 echo
 echo "Done!"
+echo
+echo "To ensure all changes made to your system you should now reboot"
+echo "your system. If you don't do this no Android applications will"
+echo "show up in the system application launcher."
