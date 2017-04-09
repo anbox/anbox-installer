@@ -51,6 +51,8 @@ if [ "$action" == "2" ]; then
 	if [ -e $HOME/.config/upstart/anbox.conf ]; then
 		initctl stop anbox
 		rm -f $HOME/.config/upstart/anbox.conf
+	elif [ -e $HOME/.config/systemd/user/anbox.service ]; then
+		systemctl --user stop anbox
 	fi
 	sudo systemctl stop snap.anbox.container-manager
 	sudo snap remove anbox
@@ -154,17 +156,42 @@ export XDG_DATA_DIRS
 EOF
 fi
 
-if [ ! -e $HOME/.config/upstart/anbox.conf ]; then
-	echo "Installing upstart session job .."
-	cat << EOF > $HOME/.config/upstart/anbox.conf
-start on started unity7
-respawn
-respawn limit 10 5
-exec /snap/bin/anbox session-manager
-EOF
+if [ "$(lsb_release -i -s)" = "Ubuntu" ] ; then
+	case "$(lsb_release -r -s)" in
+		"14.04" | "16.04")
+			if [ ! -e $HOME/.config/upstart/anbox.conf ]; then
+				mkdir -p $HOME/.config/upstart
+				echo "Installing upstart session job .."
+				cat <<-EOF > $HOME/.config/upstart/anbox.conf
+				start on started unity7
+				respawn
+				respawn limit 10 5
+				exec /snap/bin/anbox session-manager
+				EOF
+			fi
+			initctl start anbox
+			;;
+		*)
+			if [ ! -e $HOME/.config/systemd/user/anbox.service ] ; then
+				mkdir -p $HOME/.config/systemd/user
+				echo "Installing systemd user session service .."
+				cat <<-EOF > $HOME/.config/systemd/user/anbox.service
+				[Unit]
+				Description=Anbox session manager
+
+				[Service]
+				ExecStart=/snap/bin/anbox session-manager
+
+				[Install]
+				WantedBy=default.target
+				EOF
+				systemctl --user daemon-reload
+				systemctl --user enable --now anbox
+			fi
+			;;
+	esac
 fi
 
-initctl start anbox
 set +x
 
 echo
