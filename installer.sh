@@ -132,11 +132,10 @@ fi
 sudo modprobe binder_linux
 sudo modprobe ashmem_linux
 
-snap list | grep anbox
-if [ $? -ne 1 ]; then
-	 sudo snap install --edge --devmode anbox
-else
+if snap list anbox >/dev/null 2>&1; then
 	 sudo snap refresh anbox
+else
+	 sudo snap install --edge --devmode anbox
 fi
 
 if [ ! -e /etc/X11/Xsession.d/68anbox ]; then
