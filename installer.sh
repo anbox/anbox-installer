@@ -158,7 +158,7 @@ fi
 
 if [ "$(lsb_release -i -s)" = "Ubuntu" ] ; then
 	case "$(lsb_release -r -s)" in
-		"14.04" | "16.04")
+		14.04|16.04)
 			if [ ! -e $HOME/.config/upstart/anbox.conf ]; then
 				mkdir -p $HOME/.config/upstart
 				echo "Installing upstart session job .."
