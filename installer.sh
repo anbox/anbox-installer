@@ -35,7 +35,11 @@ function contains() {
 
 if [ "$(contains "${supported_dist[@]}" "$DISTRIB_ID")" != "y" ]; then
 	echo "ERROR: You are running the installer on an unsupported distribution."
-	echo "       At the moment we only support Ubuntu."
+	echo "       At the moment we only support the following distributions:" 
+	echo
+	printf "%s, " "${supported_dist[@]}" | cut -d "," -f 1-${#supported_dist[@]}
+	echo
+	echo "If your distribution is in the list but you still see this message, open an issue here: https://github.com/anbox/anbox-installer"
 	exit 1
 fi
 
