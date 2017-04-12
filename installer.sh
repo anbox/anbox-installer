@@ -26,7 +26,7 @@ fi
 #Array of supported distributions. Just add any working distributions here
 #Careful: LinuxMint will do systemd installation because the version number won't match Ubuntu's. If you add a distribution without systemd which does not follow the same numbering as Ubuntu, it will try systemd installation instead of Upstart
 
-supported_dist=("Ubuntu" "LinuxMint")
+supported_dist=("Ubuntu" "LinuxMint" "neon")
 DISTRIB_ID="$(lsb_release -i -s)"
 
 function contains() {
