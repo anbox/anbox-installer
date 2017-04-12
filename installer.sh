@@ -23,29 +23,26 @@ if [ "$(id -u)" -eq 0 ] ; then
 	exit 1
 fi
 
-#Array of supported distributions. Just add any working distributions here
-#Careful: LinuxMint will do systemd installation because the version number won't match Ubuntu's. If you add a distribution without systemd which does not follow the same numbering as Ubuntu, it will try systemd installation instead of Upstart
-
-supported_dist=("Ubuntu" "LinuxMint" "neon")
+SUPPORTED_DISTROS=("Ubuntu" "LinuxMint","neon")
 DISTRIB_ID="$(lsb_release -i -s)"
 
 function contains() {
-    local n=$#
-    local value=${!n}
-    for ((i=1;i < $#;i++)) {
-        if [ "${!i}" == "${value}" ]; then
-		echo "y"
-            	return 0
-        fi
-    }
-    return 1
+	local n=$#
+	local value=${!n}
+	for ((i=1;i < $#;i++)) {
+		if [ "${!i}" == "${value}" ]; then
+			echo "y"
+			return 0
+		fi
+	}
+	return 1
 }
 
-if [ "$(contains "${supported_dist[@]}" "$DISTRIB_ID")" != "y" ]; then
+if [ "$(contains "${SUPPORTED_DISTROS[@]}" "$DISTRIB_ID")" != "y" ]; then
 	echo "ERROR: You are running the installer on an unsupported distribution."
 	echo "       At the moment we only support the following distributions:" 
 	echo
-	printf "%s, " "${supported_dist[@]}" | cut -d "," -f 1-${#supported_dist[@]}
+	printf "%s, " "${SUPPORTED_DISTROS[@]}" | cut -d "," -f 1-${#SUPPORTED_DISTROS[@]}
 	echo
 	echo "If your distribution is in the list but you still see this message, open an issue here: https://github.com/anbox/anbox-installer"
 	exit 1
@@ -82,6 +79,7 @@ if [ "$action" == "2" ]; then
 		rm -f $HOME/.config/upstart/anbox.conf
 	elif [ -e $HOME/.config/systemd/user/anbox.service ]; then
 		systemctl --user stop anbox
+		rm -f $HOME/.config/systemd/user/anbox.service
 	fi
 	sudo systemctl stop snap.anbox.container-manager
 	sudo snap remove anbox
@@ -93,7 +91,6 @@ if [ "$action" == "2" ]; then
 		sudo apt install -y ppa-purge
 		sudo ppa-purge ppa:morphis/anbox-support
 	fi
-	rm -f $HOME/.config/upstart/anbox.conf
 	sudo rm -f /etc/X11/Xsession.d/68anbox
 	set +xe
 	echo
@@ -185,19 +182,19 @@ export XDG_DATA_DIRS
 EOF
 fi
 
-if [ "$(contains "${supported_dist[@]}" "$DISTRIB_ID")" == "y" ]; then
-    mkdir -p $HOME/.config/upstart
-    echo "Installing upstart session job .."
-    cat <<-EOF > $HOME/.config/upstart/anbox.conf
+mkdir -p $HOME/.config/upstart
+echo "Installing upstart session job .."
+cat << EOF > $HOME/.config/upstart/anbox.conf
 start on started unity7
 respawn
 respawn limit 10 5
 exec /snap/bin/anbox session-manager
 EOF
-    initctl start anbox || true
-    mkdir -p $HOME/.config/systemd/user
-    echo "Installing systemd user session service .."
-    cat <<-EOF > $HOME/.config/systemd/user/anbox.service
+initctl start anbox || true
+
+mkdir -p $HOME/.config/systemd/user
+echo "Installing systemd user session service .."
+cat <<-EOF > $HOME/.config/systemd/user/anbox.service
 [Unit]
 Description=Anbox session manager
 
@@ -207,9 +204,8 @@ ExecStart=/snap/bin/anbox session-manager
 [Install]
 WantedBy=default.target
 EOF
-    systemctl --user daemon-reload || true
-    systemctl --user enable --now anbox || true
-fi
+systemctl --user daemon-reload || true
+systemctl --user enable --now anbox || true
 
 set +x
 
