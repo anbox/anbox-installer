@@ -16,6 +16,13 @@ echo "password when required."
 echo
 echo
 
+if [ "$(id -u)" -eq 0 ] ; then
+	echo "ERROR: Don't run the anbox-installer as root or via sudo. Simply"
+	echo "       invoke it with your regular user. The script will use sudo"
+	echo "       on its own when needed."
+	exit 1
+fi
+
 if [ "$(lsb_release -i -s)" != "Ubuntu" ]; then
 	echo "ERROR: You are running the installer on a not support distribution."
 	echo "       At the moment we only support Ubuntu."
