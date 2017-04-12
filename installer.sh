@@ -15,6 +15,14 @@ echo "to install all necessary things. It will prompt you to enter your"
 echo "password when required."
 echo
 echo
+
+if [ "$(id -u)" -eq 0 ] ; then
+	echo "ERROR: Don't run the anbox-installer as root or via sudo. Simply"
+	echo "       invoke it with your regular user. The script will use sudo"
+	echo "       on its own when needed."
+	exit 1
+fi
+
 #Array of supported distributions. Just add any working distributions here
 #Careful: LinuxMint will do systemd installation because the version number won't match Ubuntu's. If you add a distribution without systemd which does not follow the same numbering as Ubuntu, it will try systemd installation instead of Upstart
 
