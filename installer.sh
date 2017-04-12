@@ -160,8 +160,8 @@ fi
 sudo modprobe binder_linux
 sudo modprobe ashmem_linux
 
-if snap list anbox >/dev/null 2>&1; then
-	 sudo snap refresh anbox
+if snap info anbox | grep -q "installed:" ; then
+	 sudo snap refresh --edge anbox || true
 else
 	 sudo snap install --edge --devmode anbox
 fi
