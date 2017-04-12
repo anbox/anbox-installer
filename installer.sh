@@ -23,7 +23,7 @@ if [ "$(id -u)" -eq 0 ] ; then
 	exit 1
 fi
 
-SUPPORTED_DISTROS=("Ubuntu" "LinuxMint")
+SUPPORTED_DISTROS=("Ubuntu" "LinuxMint","neon")
 DISTRIB_ID="$(lsb_release -i -s)"
 
 function contains() {
