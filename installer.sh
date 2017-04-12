@@ -23,9 +23,31 @@ if [ "$(id -u)" -eq 0 ] ; then
 	exit 1
 fi
 
-if [ "$(lsb_release -i -s)" != "Ubuntu" ]; then
-	echo "ERROR: You are running the installer on a not support distribution."
-	echo "       At the moment we only support Ubuntu."
+#Array of supported distributions. Just add any working distributions here
+#Careful: LinuxMint will do systemd installation because the version number won't match Ubuntu's. If you add a distribution without systemd which does not follow the same numbering as Ubuntu, it will try systemd installation instead of Upstart
+
+supported_dist=("Ubuntu" "LinuxMint")
+DISTRIB_ID="$(lsb_release -i -s)"
+
+function contains() {
+    local n=$#
+    local value=${!n}
+    for ((i=1;i < $#;i++)) {
+        if [ "${!i}" == "${value}" ]; then
+		echo "y"
+            	return 0
+        fi
+    }
+    return 1
+}
+
+if [ "$(contains "${supported_dist[@]}" "$DISTRIB_ID")" != "y" ]; then
+	echo "ERROR: You are running the installer on an unsupported distribution."
+	echo "       At the moment we only support the following distributions:" 
+	echo
+	printf "%s, " "${supported_dist[@]}" | cut -d "," -f 1-${#supported_dist[@]}
+	echo
+	echo "If your distribution is in the list but you still see this message, open an issue here: https://github.com/anbox/anbox-installer"
 	exit 1
 fi
 
@@ -126,7 +148,8 @@ EOF
 fi
 
 sudo apt install -y software-properties-common linux-headers-generic
-sudo add-apt-repository -y -u 'ppa:morphis/anbox-support'
+sudo add-apt-repository -y 'ppa:morphis/anbox-support'
+sudo apt update
 sudo apt install -y anbox-modules-dkms
 
 if [ ! -e /etc/modules-load.d/anbox.conf ]; then
@@ -162,7 +185,7 @@ export XDG_DATA_DIRS
 EOF
 fi
 
-if [ "$(lsb_release -i -s)" = "Ubuntu" ] ; then
+if [ "$(contains "${supported_dist[@]}" "$DISTRIB_ID")" == "y" ]; then
 	case "$(lsb_release -r -s)" in
 		14.04|16.04)
 			if [ ! -e $HOME/.config/upstart/anbox.conf ]; then
