@@ -106,7 +106,7 @@ echo "   which will add kernel modules for ashmem and binder which are"
 echo "   required for the Android container to work."
 echo " * Configure binder and ashmem kernel modules to be loaded"
 echo "   automatically on boot."
-echo " * Install the anbox-common package from the ppa which will
+echo " * Install the anbox-common package from the ppa which will"
 echo "   - Add an upstart job for the current user $USER which will"
 echo "     start the anbox runtime on login."
 echo "   - Add a X11 session configuration file to allow the system"
