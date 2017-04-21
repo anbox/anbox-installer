@@ -56,7 +56,7 @@ echo " 1. Install Anbox"
 echo " 2. Uninstall Anbox"
 echo
 echo "Please enter your choice [1-2]: "
-read action
+read -r action
 echo
 echo
 
@@ -69,7 +69,7 @@ if [ "$action" == "2" ]; then
 	echo
 	echo "Please type 'I AGREE' followed by pressing ENTER to continue"
 	echo "or type anything else to abort:"
-	read input
+	read -r input
 	if [ "$input" != "I AGREE" ]; then
 		exit 1
 	fi
@@ -106,7 +106,7 @@ echo "   which will add kernel modules for ashmem and binder which are"
 echo "   required for the Android container to work."
 echo " * Configure binder and ashmem kernel modules to be loaded"
 echo "   automatically on boot."
-echo " * Install the anbox-common package from the ppa which will
+echo " * Install the anbox-common package from the ppa which will"
 echo "   - Add an upstart job for the current user $USER which will"
 echo "     start the anbox runtime on login."
 echo "   - Add a X11 session configuration file to allow the system"
@@ -115,7 +115,7 @@ echo "     available Android applications."
 echo
 echo "Please type 'I AGREE' followed by pressing ENTER to continue"
 echo "or type anything else to abort:"
-read input
+read -r input
 if [ "$input" != "I AGREE" ]; then
 	exit 1
 fi
