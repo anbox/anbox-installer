@@ -23,6 +23,13 @@ if [ "$(id -u)" -eq 0 ] ; then
 	exit 1
 fi
 
+if ! uname -a | grep -q x86_64 ; then
+	echo "ERROR: We only have support for x86 64 bit devices today. As"
+	echo "       your system has a different architecture we can't"
+	echo "       support it yet."
+	exit 1
+fi
+
 SUPPORTED_DISTROS=("Ubuntu" "LinuxMint" "neon" "elementary")
 DISTRIB_ID="$(lsb_release -i -s)"
 
