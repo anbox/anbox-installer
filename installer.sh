@@ -56,7 +56,7 @@ echo " 1. Install Anbox"
 echo " 2. Uninstall Anbox"
 echo
 echo "Please enter your choice [1-2]: "
-read action
+read -r action
 echo
 echo
 
@@ -69,7 +69,7 @@ if [ "$action" == "2" ]; then
 	echo
 	echo "Please type 'I AGREE' followed by pressing ENTER to continue"
 	echo "or type anything else to abort:"
-	read input
+	read -r input
 	if [ "$input" != "I AGREE" ]; then
 		exit 1
 	fi
@@ -115,7 +115,7 @@ echo "     available Android applications."
 echo
 echo "Please type 'I AGREE' followed by pressing ENTER to continue"
 echo "or type anything else to abort:"
-read input
+read -r input
 if [ "$input" != "I AGREE" ]; then
 	exit 1
 fi
