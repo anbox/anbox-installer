@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -o errexit #Stops the installer if ANY line of code returns a non-zero exit code.
+
 echo "Android in a Box - Installer"
 echo
 echo
@@ -16,7 +18,7 @@ echo "password when required."
 echo
 echo
 
-if [ "$(id -u)" -eq 0 ] ; then
+if [ "$(id -u)" -eq 0 ] ; then #Check for root access
 	echo "ERROR: Don't run the anbox-installer as root or via sudo. Simply"
 	echo "       invoke it with your regular user. The script will use sudo"
 	echo "       on its own when needed."
