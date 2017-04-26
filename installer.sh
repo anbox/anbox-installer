@@ -74,6 +74,17 @@ echo
 	exit 1
 }
 
+uninstall() {
+	set -x
+	sudo snap remove anbox
+	sudo apt purge -y anbox-modules-dkms
+	if [ -e /etc/apt/sources.list.d/morphis-ubuntu-anbox-support-xenial.list ]; then
+		sudo apt install -y ppa-purge
+		sudo ppa-purge ppa:morphis/anbox-support
+	fi
+	set +x
+}
+
 if [ "$action" == "2" ]; then
 	echo "This will now remove the Android in a Box runtime environment"
 	echo "from your device. Do you really want this?"
@@ -88,14 +99,7 @@ if [ "$action" == "2" ]; then
 		exit 1
 	fi
 	echo
-	set -x
-	sudo snap remove anbox
-	sudo apt purge -y anbox-modules-dkms
-	if [ -e /etc/apt/sources.list.d/morphis-ubuntu-anbox-support-xenial.list ]; then
-		sudo apt install -y ppa-purge
-		sudo ppa-purge ppa:morphis/anbox-support
-	fi
-	set +xe
+	uninstall
 	echo
 	echo "Successfully removed anbox!"
 	echo
@@ -138,6 +142,18 @@ echo
 
 echo "Starting installation process ..."
 echo
+
+cleanup() {
+	local err=$?
+	trap - EXIT
+
+	echo "ERROR: Installation failed. Removing all parts of Anbox again."
+	uninstall
+
+	exit $err
+}
+
+trap cleanup HUP PIPE INT QUIT TERM EXIT
 
 set -ex
 
