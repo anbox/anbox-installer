@@ -67,6 +67,13 @@ read -r action
 echo
 echo
 
+[[ -n "$(which snap)" ]] || {
+	echo "ERROR: Your system does not support snaps. Please have a look"
+	echo "       at https://snapcraft.io/ to find out how you can add"
+	echo "       support for snaps on your system."
+	exit 1
+}
+
 if [ "$action" == "2" ]; then
 	echo "This will now remove the Android in a Box runtime environment"
 	echo "from your device. Do you really want this?"
