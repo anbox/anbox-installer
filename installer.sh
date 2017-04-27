@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Android in a Box - Installer"
+echo "Anbox (Android in a Box) - Installer"
 echo
 echo
 echo "IMPORTANT: THIS IS ALPHA LEVEL SOFTWARE. EXPECT INSTABILITY AND"
