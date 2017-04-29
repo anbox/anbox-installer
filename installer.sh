@@ -145,20 +145,24 @@ KERNEL=="ashmem", NAME="%k", MODE="0666"
 EOF
 fi
 
-sudo apt install -y software-properties-common linux-headers-generic
-sudo add-apt-repository -y 'ppa:morphis/anbox-support'
-sudo apt update
-sudo apt install -y anbox-modules-dkms
+if [ -c /dev/binder ] && [ -c /dev/ashmem ]; then
+    echo "Android binder and ashmem seems to be already enabled in kernel.";
+else
+    sudo apt install -y software-properties-common linux-headers-generic
+    sudo add-apt-repository -y 'ppa:morphis/anbox-support'
+    sudo apt update
+    sudo apt install -y anbox-modules-dkms
 
-if [ ! -e /etc/modules-load.d/anbox.conf ]; then
-	sudo tee /etc/modules-load.d/anbox.conf &>/dev/null <<EOF
+    if [ ! -e /etc/modules-load.d/anbox.conf ]; then
+        sudo tee /etc/modules-load.d/anbox.conf &>/dev/null <<EOF
 ashmem_linux
 binder_linux
 EOF
-fi
+    fi
 
-sudo modprobe binder_linux
-sudo modprobe ashmem_linux
+    sudo modprobe binder_linux
+    sudo modprobe ashmem_linux
+fi
 
 if snap info anbox | grep -q "installed:" ; then
 	 sudo snap refresh --edge anbox || true
