@@ -166,7 +166,7 @@ trap cleanup HUP PIPE INT QUIT TERM EXIT
 set -ex
 
 sudo apt install -y software-properties-common linux-headers-generic
-sudo add-apt-repository -y 'ppa:morphis/anbox-support'
+sudo add-apt-repository -y ppa:~morphis/anbox-support
 sudo apt update
 sudo apt install -y anbox-modules-dkms anbox-common
 
