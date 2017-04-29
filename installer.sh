@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Android in a Box - Installer"
+echo "Anbox (Android in a Box) - Installer"
 echo
 echo
 echo "IMPORTANT: THIS IS ALPHA LEVEL SOFTWARE. EXPECT INSTABILITY AND"
@@ -20,6 +20,13 @@ if [ "$(id -u)" -eq 0 ] ; then
 	echo "ERROR: Don't run the anbox-installer as root or via sudo. Simply"
 	echo "       invoke it with your regular user. The script will use sudo"
 	echo "       on its own when needed."
+	exit 1
+fi
+
+if ! uname -a | grep -q x86_64 ; then
+	echo "ERROR: We only have support for x86 64 bit devices today. As"
+	echo "       your system has a different architecture we can't"
+	echo "       support it yet."
 	exit 1
 fi
 
@@ -56,9 +63,35 @@ echo " 1. Install Anbox"
 echo " 2. Uninstall Anbox"
 echo
 echo "Please enter your choice [1-2]: "
-read action
+read -r action
 echo
 echo
+
+[[ -n "$(which snap)" ]] || {
+	echo "ERROR: Your system does not support snaps. Please have a look"
+	echo "       at https://snapcraft.io/ to find out how you can add"
+	echo "       support for snaps on your system."
+	exit 1
+}
+
+uninstall() {
+	set -x
+	sudo snap remove anbox
+	sudo apt purge -y anbox-modules-dkms
+	if [ -e /etc/apt/sources.list.d/morphis-ubuntu-anbox-support-xenial.list ]; then
+		ppa_purged_installed=0
+		if ! dpkg --get-selections | grep -q ppa-purge ; then
+			sudo apt install -y ppa-purge
+			ppa_purged_installed=1
+		fi
+		sudo apt install -y ppa-purge
+		sudo ppa-purge -y ppa:morphis/anbox-support
+		if [ "$ppa_purged_installed" -eq 1 ]; then
+			sudo apt purge ppa-purge
+		fi
+	fi
+	set +x
+}
 
 if [ "$action" == "2" ]; then
 	echo "This will now remove the Android in a Box runtime environment"
@@ -69,31 +102,12 @@ if [ "$action" == "2" ]; then
 	echo
 	echo "Please type 'I AGREE' followed by pressing ENTER to continue"
 	echo "or type anything else to abort:"
-	read input
+	read -r input
 	if [ "$input" != "I AGREE" ]; then
 		exit 1
 	fi
 	echo
-	set -x
-	if [ -e $HOME/.config/upstart/anbox.conf ]; then
-		initctl stop anbox
-		rm -f $HOME/.config/upstart/anbox.conf
-	elif [ -e $HOME/.config/systemd/user/anbox.service ]; then
-		systemctl --user stop anbox
-		rm -f $HOME/.config/systemd/user/anbox.service
-	fi
-	sudo systemctl stop snap.anbox.container-manager
-	sudo snap remove anbox
-	sudo rm -f /etc/udev/rules.d/99-anbox.rules
-	sudo rm -f /etc/modules-load.d/anbox.conf
-	sudo rmmod ashmem_linux binder_linux || true
-	sudo apt purge -y anbox-modules-dkms
-	if [ -e /etc/apt/sources.list.d/morphis-ubuntu-anbox-support-xenial.list ]; then
-		sudo apt install -y ppa-purge
-		sudo ppa-purge ppa:morphis/anbox-support
-	fi
-	sudo rm -f /etc/X11/Xsession.d/68anbox
-	set +xe
+	uninstall
 	echo
 	echo "Successfully removed anbox!"
 	echo
@@ -118,15 +132,16 @@ echo "   which will add kernel modules for ashmem and binder which are"
 echo "   required for the Android container to work."
 echo " * Configure binder and ashmem kernel modules to be loaded"
 echo "   automatically on boot."
-echo " * Add an upstart job for the current user $USER which will"
-echo "   start the anbox runtime on login."
-echo " * Add a X11 session configuration file to allow the system"
-echo "   application launcher (Unity7, Gnome Shell, ..) to find"
-echo "   available Android applications."
+echo " * Install the anbox-common package from the ppa which will"
+echo "   - Add an upstart job for the current user $USER which will"
+echo "     start the anbox runtime on login."
+echo "   - Add a X11 session configuration file to allow the system"
+echo "     application launcher (Unity7, Gnome Shell, ..) to find"
+echo "     available Android applications."
 echo
 echo "Please type 'I AGREE' followed by pressing ENTER to continue"
 echo "or type anything else to abort:"
-read input
+read -r input
 if [ "$input" != "I AGREE" ]; then
 	exit 1
 fi
@@ -136,14 +151,19 @@ echo
 echo "Starting installation process ..."
 echo
 
-set -ex
+cleanup() {
+	local err=$?
+	trap - EXIT
 
-if [ ! -e /etc/udev/rules.d/99-anbox.rules ]; then
-	sudo tee /etc/udev/rules.d/99-anbox.rules &>/dev/null <<"EOF"
-KERNEL=="binder", NAME="%k", MODE="0666"
-KERNEL=="ashmem", NAME="%k", MODE="0666"
-EOF
-fi
+	echo "ERROR: Installation failed. Removing all parts of Anbox again."
+	uninstall
+
+	exit $err
+}
+
+trap cleanup HUP PIPE INT QUIT TERM EXIT
+
+set -ex
 
 if [ -c /dev/binder ] && [ -c /dev/ashmem ]; then
     echo "Android binder and ashmem seems to be already enabled in kernel.";
@@ -170,48 +190,6 @@ else
 	 sudo snap install --edge --devmode anbox
 fi
 
-if [ ! -e /etc/X11/Xsession.d/68anbox ]; then
-	echo "Installing application launcher detection for X11 .."
-	sudo tee /etc/X11/Xsession.d/68anbox &>/dev/null <<"EOF"
-# This file is sourced by Xsession(5), not executed.
-# Add additional anbox desktop path
-if [ -z "$XDG_DATA_DIRS" ]; then
-    # 60x11-common_xdg_path does not always set XDG_DATA_DIRS
-    # so we ensure we have sensible defaults here (LP: #1575014)
-    # as a workaround
-    XDG_DATA_DIRS=/usr/local/share/:/usr/share/:$HOME/snap/anbox/common/app-data
-else
-    XDG_DATA_DIRS="$XDG_DATA_DIRS":$HOME/snap/anbox/common/app-data
-fi
-export XDG_DATA_DIRS
-EOF
-fi
-
-mkdir -p $HOME/.config/upstart
-echo "Installing upstart session job .."
-cat << EOF > $HOME/.config/upstart/anbox.conf
-start on started unity7
-respawn
-respawn limit 10 5
-exec /snap/bin/anbox session-manager
-EOF
-initctl start anbox || true
-
-mkdir -p $HOME/.config/systemd/user
-echo "Installing systemd user session service .."
-cat <<-EOF > $HOME/.config/systemd/user/anbox.service
-[Unit]
-Description=Anbox session manager
-
-[Service]
-ExecStart=/snap/bin/anbox session-manager
-
-[Install]
-WantedBy=default.target
-EOF
-systemctl --user daemon-reload || true
-systemctl --user enable --now anbox || true
-
 set +x
 
 echo
@@ -220,3 +198,4 @@ echo
 echo "To ensure all changes made to your system you should now reboot"
 echo "your system. If you don't do this no Android applications will"
 echo "show up in the system application launcher."
+trap - EXIT
