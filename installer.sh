@@ -85,7 +85,7 @@ uninstall() {
 			ppa_purged_installed=1
 		fi
 		sudo apt install -y ppa-purge
-		sudo ppa-purge ppa:morphis/anbox-support
+		sudo ppa-purge -y ppa:morphis/anbox-support
 		if [ "$ppa_purged_installed" -eq 1 ]; then
 			sudo apt purge ppa-purge
 		fi
@@ -184,3 +184,4 @@ echo
 echo "To ensure all changes made to your system you should now reboot"
 echo "your system. If you don't do this no Android applications will"
 echo "show up in the system application launcher."
+trap - EXIT
