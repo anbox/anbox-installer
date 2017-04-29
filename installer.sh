@@ -164,10 +164,17 @@ trap cleanup HUP PIPE INT QUIT TERM EXIT
 
 set -ex
 
-sudo apt install -y software-properties-common linux-headers-generic
-sudo add-apt-repository -y 'ppa:morphis/anbox-support'
-sudo apt update
-sudo apt install -y anbox-modules-dkms anbox-common
+if [ -c /dev/binder ] && [ -c /dev/ashmem ]; then
+    echo "Android binder and ashmem seems to be already enabled in kernel.";
+else
+    sudo apt install -y software-properties-common linux-headers-generic
+    sudo add-apt-repository -y 'ppa:morphis/anbox-support'
+    sudo apt update
+    sudo apt install -y anbox-modules-dkms
+
+    sudo modprobe binder_linux
+    sudo modprobe ashmem_linux
+fi
 
 if snap info anbox | grep -q "installed:" ; then
 	 sudo snap refresh --edge anbox || true
