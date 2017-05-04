@@ -77,7 +77,6 @@ echo
 uninstall() {
 	set -x
 	sudo snap remove anbox
-	sudo apt purge -y anbox-modules-dkms
 	if [ -e /etc/apt/sources.list.d/morphis-ubuntu-anbox-support-xenial.list ]; then
 		ppa_purged_installed=0
 		if ! dpkg --get-selections | grep -q ppa-purge ; then
