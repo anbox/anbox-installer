@@ -166,7 +166,11 @@ set -ex
 
 sudo apt install -y software-properties-common linux-headers-generic
 sudo add-apt-repository -y 'ppa:morphis/anbox-support'
-sudo apt update
+# Users tend to have APT repositories installed which are not properly
+# authenticated and because of that `apt update` will fail. We ignore
+# this and proceed with the package installation. If the installation
+# of a specific package fails this will indicate our point of abort.
+sudo apt update || true
 sudo apt install -y anbox-modules-dkms anbox-common
 
 if snap info anbox | grep -q "installed:" ; then
