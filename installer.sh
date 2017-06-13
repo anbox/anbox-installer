@@ -164,14 +164,20 @@ trap cleanup HUP PIPE INT QUIT TERM EXIT
 
 set -ex
 
+sudo add-apt-repository -y 'ppa:morphis/anbox-support'
+# Users tend to have APT repositories installed which are not properly
+# authenticated and because of that `apt update` will fail. We ignore
+# this and proceed with the package installation. If the installation
+# of a specific package fails this will indicate our point of abort.
+sudo apt update || true
+sudo apt install -y anbox-common
+
+# Install kernel drivers only if necessary and let the user use the
+# ones build into his kernel otherwise.
 if [ -c /dev/binder ] && [ -c /dev/ashmem ]; then
     echo "Android binder and ashmem seems to be already enabled in kernel.";
 else
-    sudo apt install -y software-properties-common linux-headers-generic
-    sudo add-apt-repository -y 'ppa:morphis/anbox-support'
-    sudo apt update
-    sudo apt install -y anbox-modules-dkms
-
+    sudo apt install -y linux-headers-generic anbox-modules-dkms
     sudo modprobe binder_linux
     sudo modprobe ashmem_linux
 fi
