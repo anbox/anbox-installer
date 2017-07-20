@@ -23,10 +23,22 @@ if [ "$(id -u)" -eq 0 ] ; then
 	exit 1
 fi
 
-if ! uname -a | grep -q x86_64 ; then
-	echo "ERROR: We only have support for x86 64 bit devices today. As"
-	echo "       your system has a different architecture we can't"
-	echo "       support it yet."
+SUPPORTED_ARCHES=("x86_64")
+supported=false
+
+# Care must be taken if identification of the current architecture is ever
+# needed, as this is only a substring match. E.g. x86 appears in x86_64.
+for arch in "${SUPPORTED_ARCHES[@]}" ; do
+	if uname -a | grep -q "$arch" ; then
+		supported=true
+		break
+	fi
+done
+
+if ! $supported ; then
+	echo "ERROR: Your architecture is not supported. Official images"
+	echo "       are provided for the following architectures:"
+	printf '  *) %s\n' "${SUPPORTED_ARCHES[@]}"
 	exit 1
 fi
 
@@ -48,8 +60,7 @@ function contains() {
 if [ "$(contains "${SUPPORTED_DISTROS[@]}" "$DISTRIB_ID")" != "y" ]; then
 	echo "ERROR: You are running the installer on an unsupported distribution."
 	echo "       At the moment we only support the following distributions:" 
-	echo
-	printf "%s, " "${SUPPORTED_DISTROS[@]}" | cut -d "," -f 1-${#SUPPORTED_DISTROS[@]}
+	printf '  *) %s\n' "${SUPPORTED_DISTROS[@]}"
 	echo
 	echo "If your distribution is in the list but you still see this message, open"
 	echo "an issue here: https://github.com/anbox/anbox-installer"
