@@ -29,7 +29,7 @@ supported=false
 # Care must be taken if identification of the current architecture is ever
 # needed, as this is only a substring match. E.g. x86 appears in x86_64.
 for arch in "${SUPPORTED_ARCHES[@]}" ; do
-	if uname -a | grep -q $arch ; then
+	if uname -a | grep -q "$arch" ; then
 		supported=true
 		break
 	fi
