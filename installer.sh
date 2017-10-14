@@ -24,8 +24,8 @@ if [ "$(id -u)" -eq 0 ] ; then
 fi
 
 if ! uname -a | grep -q x86_64 ; then
-	echo "ERROR: We only have support for x86 64 bit devices today. As"
-	echo "       your system has a different architecture we can't"
+	echo "ERROR: We only support x86_64 devices, right now. As"
+	echo "       your system has a different architecture, we can't"
 	echo "       support it yet."
 	exit 1
 fi
@@ -93,8 +93,8 @@ uninstall() {
 }
 
 if [ "$action" == "2" ]; then
-	echo "This will now remove the Android in a Box runtime environment"
-	echo "from your device. Do you really want this?"
+	echo "You chose to remove Anbox from your device."
+	echo "Do you really want to do this?"
 	echo
 	echo "Please be aware that this will also remove any user data"
 	echo "stored inside the runtime environment."
@@ -108,7 +108,7 @@ if [ "$action" == "2" ]; then
 	echo
 	uninstall
 	echo
-	echo "Successfully removed anbox!"
+	echo "Successfully removed Anbox!"
 	echo
 	exit 0
 fi
@@ -193,7 +193,7 @@ set +x
 echo
 echo "Done!"
 echo
-echo "To ensure all changes made to your system you should now reboot"
-echo "your system. If you don't do this no Android applications will"
+echo "To ensure all changes made to your system, you should now reboot"
+echo "your system. If you don't do this, Android applications won't"
 echo "show up in the system application launcher."
 trap - EXIT
