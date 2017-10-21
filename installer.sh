@@ -3,8 +3,8 @@
 echo "Anbox (Android in a Box) - Installer"
 echo
 echo
-echo "IMPORTANT: THIS IS ALPHA LEVEL SOFTWARE. EXPECT INSTABILITY AND"
-echo "           BUGS !!!!!"
+echo "IMPORTANT: This is a script, considered to be in Alpha stage."
+echo "           EXPECT INSTABILITY AND BUGS !!!!!"
 echo
 echo "IMPORTANT: ALSO PLEASE BE AWARE THAT WE DON'T PROVIDE FULL"
 echo "           CONFINEMENT FOR THE SNAP YET !!!!"
@@ -24,9 +24,9 @@ if [ "$(id -u)" -eq 0 ] ; then
 fi
 
 if ! uname -a | grep -q x86_64 ; then
-	echo "ERROR: We only have support for x86 64 bit devices today. As"
+	echo "ERROR: We only support for x86_64 devices, for now. As  "
 	echo "       your system has a different architecture we can't"
-	echo "       support it yet."
+	echo "       support it-at least not yet."
 	exit 1
 fi
 
@@ -93,8 +93,8 @@ uninstall() {
 }
 
 if [ "$action" == "2" ]; then
-	echo "This will now remove the Android in a Box runtime environment"
-	echo "from your device. Do you really want this?"
+	echo "This will now remove Anbox from your device."
+	echo "Do you really want to do this?"
 	echo
 	echo "Please be aware that this will also remove any user data"
 	echo "stored inside the runtime environment."
@@ -108,7 +108,7 @@ if [ "$action" == "2" ]; then
 	echo
 	uninstall
 	echo
-	echo "Successfully removed anbox!"
+	echo "Successfully removed Anbox!"
 	echo
 	exit 0
 fi
@@ -118,7 +118,7 @@ if [ "$action" != "1" ]; then
 	exit 1
 fi
 
-echo "This is the installer for the anbox runtime environment. It will"
+echo "This is the installer for the Anbox runtime environment. It will"
 echo "install certain things on your system to ensure all requirements"
 echo "are available for anbox to work correctly."
 echo
@@ -193,7 +193,7 @@ set +x
 echo
 echo "Done!"
 echo
-echo "To ensure all changes made to your system you should now reboot"
-echo "your system. If you don't do this no Android applications will"
-echo "show up in the system application launcher."
+echo "To ensure all changes made to your system, you should now restart"
+echo "your system. If you don't do this Android applications won't show"
+echo "up in the system application launcher."
 trap - EXIT
