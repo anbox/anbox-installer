@@ -194,6 +194,6 @@ echo
 echo "Done!"
 echo
 echo "To ensure all changes made to your system, you should now restart"
-echo "your system. If you don't do this Android applications won't show"
+echo "your system. If you don't do this, Android applications won't show"
 echo "up in the system application launcher."
 trap - EXIT
