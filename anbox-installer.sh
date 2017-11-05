@@ -24,9 +24,9 @@ if [ "$(id -u)" -eq 0 ] ; then
 fi
 
 if ! uname -a | grep -q x86_64 ; then
-	echo "ERROR: We only support for x86_64 devices, for now. As  "
-	echo "       your system has a different architecture we can't"
-	echo "       support it-at least not yet."
+	echo "ERROR: We only support x86_64 devices, for now. As your "
+	echo "       system has a different architecture we can't"
+	echo "       support it... yet."
 	exit 1
 fi
 
