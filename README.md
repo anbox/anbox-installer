@@ -1,2 +1,2 @@
 # anbox-installer
-Installer for Anbox, with improved messages
+This is a fork of Anbox, with some fixes and improvements.
