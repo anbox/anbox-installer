@@ -51,7 +51,9 @@ if [ "$(contains "${SUPPORTED_DISTROS[@]}" "$DISTRIB_ID")" != "y" ]; then
 	echo
 	printf "%s, " "${SUPPORTED_DISTROS[@]}" | cut -d "," -f 1-${#SUPPORTED_DISTROS[@]}
 	echo
-	echo "If your distribution is in the list but you still see this message, open"
+	echo "Only Debian-based distros are supported by Anbox."
+	echo.
+	echo "If your distribution is in the list, but you still see this message, open"
 	echo "an issue on the mainstream repository: https://github.com/anbox/anbox-installer"
 	exit 1
 fi
