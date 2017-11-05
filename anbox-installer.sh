@@ -60,7 +60,7 @@ echo
 echo "What do you want to do?"
 echo
 echo " 1. Install Anbox"
-echo " 2. Uninstall Anbox"
+echo " 2. Remove Anbox"
 echo
 echo "Please enter your choice [1-2]: "
 read -r action
