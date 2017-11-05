@@ -120,9 +120,9 @@ fi
 
 echo "This is the installer for the Anbox runtime environment. It will"
 echo "install certain things on your system to ensure all requirements"
-echo "are available for anbox to work correctly."
+echo "are available for Anbox to work correctly."
 echo
-echo "In summary we will install the following things:"
+echo "In summary, we will install the following things:"
 echo
 echo " * Add the anbox-support ppa ppa:morphis/anbox-support to the"
 echo "   host system"
