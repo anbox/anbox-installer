@@ -30,7 +30,7 @@ if ! uname -a | grep -q x86_64 ; then
 	exit 1
 fi
 
-SUPPORTED_DISTROS=("Ubuntu" "LinuxMint" "neon" "elementary" "Zorin")
+SUPPORTED_DISTROS=("Ubuntu" "LinuxMint" "neon" "elementary" "elementary OS" "Zorin")
 DISTRIB_ID="$(lsb_release -i -s)"
 
 function contains() {
