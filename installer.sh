@@ -169,7 +169,7 @@ sudo add-apt-repository -y 'ppa:morphis/anbox-support'
 # authenticated and because of that `apt update` will fail. We ignore
 # this and proceed with the package installation. If the installation
 # of a specific package fails this will indicate our point of abort.
-sudo apt update || true
+sudo apt-get update -o Dir::Etc::sourcelist="sources.list.d/morphis-ubuntu-anbox-support-artful.list" \-o Dir::Etc::sourceparts="-" -o APT::Get::List-Cleanup="0" || true
 sudo apt install -y anbox-common
 
 # Install kernel drivers only if necessary and let the user use the
